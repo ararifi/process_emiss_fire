@@ -1,3 +1,4 @@
-download
-echam
-icon
+data/download
+data/processed
+logs/**/*.err
+logs/**/*.out
