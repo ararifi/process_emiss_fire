@@ -49,9 +49,8 @@ All SLURM resources (job name, account, partition, time, nodes, ntasks,
 log dir) live in `env.sh`. They are passed to `sbatch` on the command
 line because `#SBATCH` directives can't read shell variables:
 
-```
 ** ECHAM **
-
+```
 source env.sh
 YEAR=2025 ; MODE=echam
 mkdir -p "$SLURM_LOG_DIR"
@@ -62,9 +61,10 @@ sbatch -A "$SLURM_ACCOUNT" -p "$SLURM_PARTITION" \
        --output="$SLURM_LOG_DIR/${SLURM_JOB_NAME}_%j.out" \
        --error="$SLURM_LOG_DIR/${SLURM_JOB_NAME}_%j.err" \
        regrid_GFED_NRT.sh "$YEAR" "$MODE"
+```
 
 ** ICON **
-
+```
 source env.sh
 YEAR=2025 ; MODE=icon
 mkdir -p "$SLURM_LOG_DIR"
@@ -75,8 +75,6 @@ sbatch -A "$SLURM_ACCOUNT" -p "$SLURM_PARTITION" \
        --output="$SLURM_LOG_DIR/${SLURM_JOB_NAME}_%j.out" \
        --error="$SLURM_LOG_DIR/${SLURM_JOB_NAME}_%j.err" \
        regrid_GFED_NRT.sh "$YEAR" "$MODE"
-
-
 ```
 
 Or, without SLURM:
