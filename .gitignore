@@ -2,3 +2,4 @@ data/download
 data/processed
 logs/**/*.err
 logs/**/*.out
+*html

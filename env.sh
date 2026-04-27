@@ -94,9 +94,10 @@ export USER="sftp0041-1-r"
 # ROOT PATHS (shared by echam and icon)
 # ---------------------------------------------------------------
 
-# Root directory of the raw downloaded GFED_NRT input files
-# (per-year subdirectory is appended in regrid.sh)
-export input_root="${PROJECT_ROOT}/data/download/GFED_NRT/daily"
+# Root directory for raw downloads (dataset/frequency/year are
+# appended by fetch_GFED_NRT.sh and regrid_GFED_NRT.sh,
+#  e.g. data/download/GFED_NRT/daily/2025)
+export input_root="${PROJECT_ROOT}/data/download"
 
 # Root scratch directory for intermediate files
 # (mode/GFED_NRT/year subdirectories are appended in regrid.sh,

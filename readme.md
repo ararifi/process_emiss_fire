@@ -17,7 +17,8 @@ them onto an ECHAM or ICON grid for use as model input.
 
 Edit `env.sh` to point at your machine:
 
-- `input_root`   - where downloaded files land
+- `input_root`   - root for raw downloads; the scripts append
+                   `GFED_NRT/daily/<YEAR>` to it
 - `tmp_root`     - scratch directory used by the regrid pipeline
 - `output_root`  - where final regridded files are written
 - `MACHINE`      - `snellius` (default) loads the right modules.
@@ -38,7 +39,7 @@ Example:
 ./fetch_GFED_NRT.sh 2025
 ```
 
-This drops the daily files into `${input_root}/<YEAR>/`.
+This drops the daily files into `${input_root}/GFED_NRT/daily/<YEAR>/`.
 
 The pw is given in:
 http://globalfiredata.org/ancill/GFED5_SFTP_info.txt
@@ -85,7 +86,8 @@ bash regrid_GFED_NRT.sh <YEAR> <MODE> [CLEAN]
 
 Arguments:
 
-- `YEAR`   - year to process (must match a directory under `input_root`)
+- `YEAR`   - year to process (must match a directory under
+             `${input_root}/GFED_NRT/daily/`)
 - `MODE`   - `echam`, `icon` or `r1x1` (1x1 deg global, CDO `r360x180`)
 - `CLEAN`  - optional, what to wipe before running:
     - `all`    (default) - clean both `output_path` and `temp_path`

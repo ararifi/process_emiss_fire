@@ -72,7 +72,7 @@ esac
 export grid_suffix="${template_grid}"
 
 # Compose per-mode, per-year paths from the shared roots in env.sh
-export input_path="${input_root}/${YEAR}"
+export input_path="${input_root}/GFED_NRT/daily/${YEAR}"
 export temp_path="${tmp_root}/${MODE}/GFED_NRT/${YEAR}"
 export output_path="${output_root}/${MODE}/GFED_NRT/daily/${YEAR}"
 
