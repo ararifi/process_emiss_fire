@@ -86,7 +86,7 @@ bash regrid_GFED_NRT.sh <YEAR> <MODE> [CLEAN]
 Arguments:
 
 - `YEAR`   - year to process (must match a directory under `input_root`)
-- `MODE`   - `echam` or `icon`
+- `MODE`   - `echam`, `icon` or `r1x1` (1x1 deg global, CDO `r360x180`)
 - `CLEAN`  - optional, what to wipe before running:
     - `all`    (default) - clean both `output_path` and `temp_path`
     - `output` - clean only `output_path`
@@ -98,6 +98,7 @@ Examples:
 ```
 sbatch regrid_GFED_NRT.sh 2025 echam
 sbatch regrid_GFED_NRT.sh 2025 icon
+sbatch regrid_GFED_NRT.sh 2025 r1x1
 bash   regrid_GFED_NRT.sh 2025 echam none
 ```
 
@@ -110,13 +111,16 @@ Files are written under
 emiss_GFED_NRT_<VAR>_wildfire_<YEAR>_<TEMPLATE_GRID>.nc
 ```
 
-`<TEMPLATE_GRID>` is the value of `echam_template_grid` or
-`icon_template_grid` in `env.sh`. Drop in any compatible grid
-description file under `template/` and update the variable to
-match. Example output filenames with the defaults shipped here:
+`<TEMPLATE_GRID>` is the value of `echam_template_grid`,
+`icon_template_grid` or `r1x1_template_grid` in `env.sh`. For echam
+and icon, drop in any compatible grid description file under
+`template/` and update the variable to match; r1x1 uses the CDO
+built-in `r360x180`, no file required. Example output filenames
+with the defaults shipped here:
 
 - echam: `emiss_GFED_NRT_SO2_wildfire_2025_T63.nc`
 - icon : `emiss_GFED_NRT_SO2_wildfire_2025_icon_grid_0005_R02B04_G.nc`
+- r1x1 : `emiss_GFED_NRT_SO2_wildfire_2025_r360x180.nc`
 
 Variables processed: `SO2 BC C2H6S OC` (configurable via `variable_names`
 in `env.sh`).

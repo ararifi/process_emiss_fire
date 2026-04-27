@@ -37,13 +37,13 @@ if [[ -z "$YEAR" || -z "$MODE" ]]; then
     echo "Usage (SLURM): sbatch regrid.sh <YEAR> <MODE> [CLEAN]" >&2
     echo "Usage (local): bash   regrid.sh <YEAR> <MODE> [CLEAN]" >&2
     echo "       (or chmod +x regrid.sh && ./regrid.sh <YEAR> <MODE> [CLEAN])" >&2
-    echo "  MODE  must be 'echam' or 'icon'" >&2
+    echo "  MODE  must be 'echam' | 'icon' | 'r1x1'" >&2
     echo "  CLEAN must be 'all' | 'output' | 'temp' | 'none' (default: all)" >&2
     exit 2
 fi
 
-if [[ "$MODE" != "echam" && "$MODE" != "icon" ]]; then
-    echo "ERROR: Invalid MODE '$MODE'. Must be 'echam' or 'icon'." >&2
+if [[ "$MODE" != "echam" && "$MODE" != "icon" && "$MODE" != "r1x1" ]]; then
+    echo "ERROR: Invalid MODE '$MODE'. Must be 'echam', 'icon' or 'r1x1'." >&2
     exit 2
 fi
 
@@ -59,12 +59,16 @@ esac
 # MODE-SPECIFIC CONFIG (resolve YEAR-dependent paths)
 
 # Pick the grid template for this mode; derive grid_path and grid_suffix.
-if [[ "$MODE" == "echam" ]]; then
-    export template_grid="$echam_template_grid"
-else
-    export template_grid="$icon_template_grid"
-fi
-export grid_path="${PROJECT_ROOT}/template/${template_grid}"
+# echam/icon use a description file under template/; r1x1 uses the
+# CDO built-in descriptor (no file).
+case "$MODE" in
+    echam) export template_grid="$echam_template_grid"
+           export grid_path="${PROJECT_ROOT}/template/${template_grid}" ;;
+    icon)  export template_grid="$icon_template_grid"
+           export grid_path="${PROJECT_ROOT}/template/${template_grid}" ;;
+    r1x1)  export template_grid="$r1x1_template_grid"
+           export grid_path="${template_grid}" ;;
+esac
 export grid_suffix="${template_grid}"
 
 # Compose per-mode, per-year paths from the shared roots in env.sh
@@ -83,7 +87,8 @@ export NJOBS=${NJOBS:-16}
 export OMP_NUM_THREADS=$NJOBS
 
 # --- CHECK ---
-if [ ! -e "$grid_path" ]; then
+# r1x1 uses the CDO built-in descriptor, so skip the file check.
+if [[ "$MODE" != "r1x1" && ! -e "$grid_path" ]]; then
     echo "ERROR: Grid template not found: $grid_path" >&2
     exit 1
 fi
@@ -107,12 +112,15 @@ prepare(){
 
 
     # copy the data into the temporary directory
+    # UNIT emission g/day
     cp "$input_file" "$file_name".nc
 
     # attach grid area to the original file
+    # UNIT m-2
     ncks -A -v grid_area "$input_eco" "$file_name".nc
 
     # compute emissions / area
+    # UNIT g m-2 day-1
     ncap2 -O -s "$var=$var/grid_area" "$file_name".nc "$file_name"_temp.nc 2>/dev/null
     mv "$file_name"_temp.nc "$file_name".nc
 
@@ -121,6 +129,7 @@ prepare(){
     mv "$file_name"_temp.nc "$file_name".nc
 
     # convert unit
+    # UNIT g m-2 day-1 = 1.157407407e-8 kg m-2 s-1
     ncap2 -O -s "
     ${var}=${var}*1.157407407e-8;
     ${var}@units=\"kg m-2 s-1\";
@@ -184,12 +193,24 @@ remap_icon(){
 }
 export -f remap_icon
 
+remap_r1x1(){
+    var=$1
+    file_name=${target_prefix}_${var}_wildfire_${YEAR}
+
+    source_file=${temp_path}/${file_name}.nc
+    target_file=${output_path}/${file_name}_${grid_suffix}.nc
+
+    cdo -O remapcon,"$grid_path" ${source_file} ${target_file}
+    ncrename -v "${var}",emiss_fire ${target_file}
+}
+export -f remap_r1x1
+
 remap(){
-    if [[ "$MODE" == "echam" ]]; then
-        remap_echam "$1"
-    else
-        remap_icon "$1"
-    fi
+    case "$MODE" in
+        echam) remap_echam "$1" ;;
+        icon)  remap_icon  "$1" ;;
+        r1x1)  remap_r1x1  "$1" ;;
+    esac
 }
 export -f remap
 

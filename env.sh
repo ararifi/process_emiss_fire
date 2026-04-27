@@ -145,6 +145,9 @@ export echam_template_grid="T63"
 # ICON grid identifier
 export icon_template_grid="icon_grid_0005_R02B04_G"
 
+# 1x1 deg regular global grid (CDO built-in descriptor)
+export r1x1_template_grid="r360x180"
+
 
 # --- PROCESSING ---
 
