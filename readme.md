@@ -78,6 +78,20 @@ sbatch -A "$SLURM_ACCOUNT" -p "$SLURM_PARTITION" \
        regrid_GFED_NRT.sh "$YEAR" "$MODE"
 ```
 
+### r1x1
+```
+source env.sh
+YEAR=2026 ; MODE=r1x1
+mkdir -p "$SLURM_LOG_DIR"
+sbatch -A "$SLURM_ACCOUNT" -p "$SLURM_PARTITION" \
+       --job-name="$SLURM_JOB_NAME" \
+       --time="$SLURM_TIME" --nodes="$SLURM_NODES" \
+       --ntasks="$SLURM_NTASKS" \
+       --output="$SLURM_LOG_DIR/${SLURM_JOB_NAME}_%j.out" \
+       --error="$SLURM_LOG_DIR/${SLURM_JOB_NAME}_%j.err" \
+       regrid_GFED_NRT.sh "$YEAR" "$MODE"
+```
+
 Or, without SLURM:
 
 ```
@@ -95,14 +109,7 @@ Arguments:
     - `temp`   - clean only `temp_path`
     - `none`   - clean nothing
 
-Examples:
 
-```
-sbatch regrid_GFED_NRT.sh 2025 echam
-sbatch regrid_GFED_NRT.sh 2025 icon
-sbatch regrid_GFED_NRT.sh 2025 r1x1
-bash   regrid_GFED_NRT.sh 2025 echam none
-```
 
 ## Output
 
