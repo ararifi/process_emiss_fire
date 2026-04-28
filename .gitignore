@@ -3,3 +3,5 @@ data/processed
 logs/**/*.err
 logs/**/*.out
 *html
+experimental
+!/test/plots/*

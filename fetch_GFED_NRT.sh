@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+
+
+# Password is avaiable at
+# https://www.globalfiredata.org/ancill/GFED5_SFTP_info.txt
+
 source "env.sh" || { echo "ERROR: failed to source env.sh" >&2; exit 1; }
 
 # ----------------------------------------------------------------
