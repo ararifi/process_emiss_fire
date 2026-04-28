@@ -3,6 +3,11 @@
 Pipeline to fetch the GFED NRT daily wildfire emission files and regrid
 them onto an ECHAM or ICON grid for use as model input.
 
+More information about the data is available in:
+https://www.globalfiredata.org/data.html
+and through:
+https://doi.org/10.1038/s41597-025-06127-w
+
 ## Files
 
 - env.sh                 - shared config (paths, prefixes, modules, creds).
