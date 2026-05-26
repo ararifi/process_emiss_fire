@@ -97,6 +97,20 @@ sbatch -A "$SLURM_ACCOUNT" -p "$SLURM_PARTITION" \
        regrid_GFED_NRT.sh "$YEAR" "$MODE"
 ```
 
+### r0p25x0p25
+```
+source env.sh
+YEAR=2026 ; MODE=r0p25x0p25
+mkdir -p "$SLURM_LOG_DIR"
+sbatch -A "$SLURM_ACCOUNT" -p "$SLURM_PARTITION" \
+       --job-name="$SLURM_JOB_NAME" \
+       --time="$SLURM_TIME" --nodes="$SLURM_NODES" \
+       --ntasks="$SLURM_NTASKS" \
+       --output="$SLURM_LOG_DIR/${SLURM_JOB_NAME}_%j.out" \
+       --error="$SLURM_LOG_DIR/${SLURM_JOB_NAME}_%j.err" \
+       regrid_GFED_NRT.sh "$YEAR" "$MODE"
+```
+
 Or, without SLURM:
 
 ```
@@ -107,7 +121,8 @@ Arguments:
 
 - `YEAR`   - year to process (must match a directory under
              `${input_root}/GFED_NRT/daily/`)
-- `MODE`   - `echam`, `icon` or `r1x1` (1x1 deg global, CDO `r360x180`)
+- `MODE`   - `echam` | `icon` | `r1x1` (1x1 deg, CDO `r360x180`)
+             | `r0p25x0p25` (0.25 deg, CDO `r1440x720`)
 - `CLEAN`  - optional, what to wipe before running:
     - `all`    (default) - clean both `output_path` and `temp_path`
     - `output` - clean only `output_path`
@@ -126,15 +141,17 @@ emiss_GFED_NRT_<VAR>_wildfire_<YEAR>_<TEMPLATE_GRID>.nc
 ```
 
 `<TEMPLATE_GRID>` is the value of `echam_template_grid`,
-`icon_template_grid` or `r1x1_template_grid` in `env.sh`. For echam
-and icon, drop in any compatible grid description file under
-`template/` and update the variable to match; r1x1 uses the CDO
-built-in `r360x180`, no file required. Example output filenames
-with the defaults shipped here:
+`icon_template_grid`, `r1x1_template_grid` or
+`r0p25x0p25_template_grid` in `env.sh`. For echam and icon, drop
+in any compatible grid description file under `template/` and
+update the variable to match; the regular-grid modes (r1x1,
+r0p25x0p25) use a CDO built-in descriptor, no file required.
+Example output filenames with the defaults shipped here:
 
-- echam: `emiss_GFED_NRT_SO2_wildfire_2025_T63.nc`
-- icon : `emiss_GFED_NRT_SO2_wildfire_2025_icon_grid_0005_R02B04_G.nc`
-- r1x1 : `emiss_GFED_NRT_SO2_wildfire_2025_r360x180.nc`
+- echam     : `emiss_GFED_NRT_SO2_wildfire_2025_T63.nc`
+- icon      : `emiss_GFED_NRT_SO2_wildfire_2025_icon_grid_0005_R02B04_G.nc`
+- r1x1      : `emiss_GFED_NRT_SO2_wildfire_2025_r360x180.nc`
+- r0p25x0p25: `emiss_GFED_NRT_SO2_wildfire_2025_r1440x720.nc`
 
 Variables processed: `SO2 BC C2H6S OC` (configurable via `variable_names`
 in `env.sh`).

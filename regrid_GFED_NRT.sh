@@ -37,15 +37,18 @@ if [[ -z "$YEAR" || -z "$MODE" ]]; then
     echo "Usage (SLURM): sbatch regrid.sh <YEAR> <MODE> [CLEAN]" >&2
     echo "Usage (local): bash   regrid.sh <YEAR> <MODE> [CLEAN]" >&2
     echo "       (or chmod +x regrid.sh && ./regrid.sh <YEAR> <MODE> [CLEAN])" >&2
-    echo "  MODE  must be 'echam' | 'icon' | 'r1x1'" >&2
+    echo "  MODE  must be 'echam' | 'icon' | 'r1x1' | 'r0p25x0p25'" >&2
     echo "  CLEAN must be 'all' | 'output' | 'temp' | 'none' (default: all)" >&2
     exit 2
 fi
 
-if [[ "$MODE" != "echam" && "$MODE" != "icon" && "$MODE" != "r1x1" ]]; then
-    echo "ERROR: Invalid MODE '$MODE'. Must be 'echam', 'icon' or 'r1x1'." >&2
-    exit 2
-fi
+case "$MODE" in
+    echam|icon|r1x1|r0p25x0p25) ;;
+    *)
+        echo "ERROR: Invalid MODE '$MODE'. Must be 'echam' | 'icon' | 'r1x1' | 'r0p25x0p25'." >&2
+        exit 2
+        ;;
+esac
 
 case "$CLEAN" in
     all|output|temp|none) ;;
@@ -59,15 +62,17 @@ esac
 # MODE-SPECIFIC CONFIG (resolve YEAR-dependent paths)
 
 # Pick the grid template for this mode; derive grid_path and grid_suffix.
-# echam/icon use a description file under template/; r1x1 uses the
-# CDO built-in descriptor (no file).
+# echam/icon use a description file under template/; the regular-grid
+# modes (r1x1, r0p25x0p25) use a CDO built-in descriptor (no file).
 case "$MODE" in
-    echam) export template_grid="$echam_template_grid"
-           export grid_path="${PROJECT_ROOT}/template/${template_grid}" ;;
-    icon)  export template_grid="$icon_template_grid"
-           export grid_path="${PROJECT_ROOT}/template/${template_grid}" ;;
-    r1x1)  export template_grid="$r1x1_template_grid"
-           export grid_path="${template_grid}" ;;
+    echam)      export template_grid="$echam_template_grid"
+                export grid_path="${PROJECT_ROOT}/template/${template_grid}" ;;
+    icon)       export template_grid="$icon_template_grid"
+                export grid_path="${PROJECT_ROOT}/template/${template_grid}" ;;
+    r1x1)       export template_grid="$r1x1_template_grid"
+                export grid_path="${template_grid}" ;;
+    r0p25x0p25) export template_grid="$r0p25x0p25_template_grid"
+                export grid_path="${template_grid}" ;;
 esac
 export grid_suffix="${template_grid}"
 
@@ -87,8 +92,8 @@ export NJOBS=${NJOBS:-16}
 export OMP_NUM_THREADS=$NJOBS
 
 # --- CHECK ---
-# r1x1 uses the CDO built-in descriptor, so skip the file check.
-if [[ "$MODE" != "r1x1" && ! -e "$grid_path" ]]; then
+# Regular-grid modes use a CDO built-in descriptor, so skip the file check.
+if [[ "$MODE" != "r1x1" && "$MODE" != "r0p25x0p25" && ! -e "$grid_path" ]]; then
     echo "ERROR: Grid template not found: $grid_path" >&2
     exit 1
 fi
@@ -193,7 +198,8 @@ remap_icon(){
 }
 export -f remap_icon
 
-remap_r1x1(){
+# Used by both r1x1 and r0p25x0p25 (only the CDO descriptor differs).
+remap_regular(){
     var=$1
     file_name=${target_prefix}_${var}_wildfire_${YEAR}
 
@@ -203,13 +209,13 @@ remap_r1x1(){
     cdo -O remapcon,"$grid_path" ${source_file} ${target_file}
     ncrename -v "${var}",emiss_fire ${target_file}
 }
-export -f remap_r1x1
+export -f remap_regular
 
 remap(){
     case "$MODE" in
-        echam) remap_echam "$1" ;;
-        icon)  remap_icon  "$1" ;;
-        r1x1)  remap_r1x1  "$1" ;;
+        echam)              remap_echam   "$1" ;;
+        icon)               remap_icon    "$1" ;;
+        r1x1|r0p25x0p25)    remap_regular "$1" ;;
     esac
 }
 export -f remap

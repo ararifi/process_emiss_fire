@@ -149,6 +149,9 @@ export icon_template_grid="icon_grid_0005_R02B04_G"
 # 1x1 deg regular global grid (CDO built-in descriptor)
 export r1x1_template_grid="r360x180"
 
+# 0.25x0.25 deg regular global grid (CDO built-in descriptor)
+export r0p25x0p25_template_grid="r1440x720"
+
 
 # --- PROCESSING ---
 
